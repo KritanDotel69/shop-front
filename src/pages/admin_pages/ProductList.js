@@ -17,16 +17,17 @@ import {
 import { useNavigate } from "react-router";
 import { products } from "../../dummy/products";
 import { useState } from "react";
-
-
+import { useGetProductsQuery } from "../../features/productApi";
+import { baseUrl } from "../../features/constant";
 
 const TABLE_HEAD = ["Products", "Price", "Created At", "Edit", "Delete"];
 
 
-
-
 const ProductList = () => {
 
+  const { isLoading, isError, data, error } = useGetProductsQuery();
+  if (isLoading) {
+  }
 
 
   const [open, setOpen] = useState(false);
@@ -75,14 +76,14 @@ const ProductList = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map(({ product_image, product_name, createdAt, _id, product_price }, index) => {
+            {data && data.map(({ product_image, product_name, createdAt, _id, product_price }, index) => {
               const isLast = index === products.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
               return <tr key={_id} >
                 <td className={classes}>
                   <div className="flex items-center gap-3">
-                    <Avatar src={`${product_image}`} size="sm" />
+                    <Avatar src={`${baseUrl}${product_image}`} size="sm" />
                     <div className="flex flex-col">
                       <Typography variant="small" color="blue-gray" className="font-normal">
                         {product_name}
@@ -108,15 +109,13 @@ const ProductList = () => {
 
                 <td className={classes}>
                   <Tooltip content="Edit Product">
-                    <IconButton onClick={() => nav(`/product/${_id}`)} variant="text" color="blue-gray">
+                    <IconButton onClick={() => nav(`/admin/productEdit/${_id}`)} variant="text" color="blue-gray">
                       <PencilIcon className="h-4 w-4" />
                     </IconButton>
                   </Tooltip>
                 </td>
 
                 <td className={classes}>
-
-
 
                   <Tooltip content="Remove Product">
                     <IconButton onClick={handleOpen} variant="text" color="red">
@@ -127,10 +126,7 @@ const ProductList = () => {
                   <Dialog open={open} handler={handleOpen}>
                     <DialogHeader>Its a simple dialog.</DialogHeader>
                     <DialogBody divider>
-                      The key to more success is to have a lot of pillows. Put it this way, it took me
-                      twenty five years to get these plants, twenty five years of blood sweat and tears, and
-                      I&apos;m never giving up, I&apos;m just getting started. I&apos;m up to something. Fan
-                      luv.
+                      Do you surely want to delete?
                     </DialogBody>
                     <DialogFooter>
                       <Button
@@ -144,25 +140,13 @@ const ProductList = () => {
                       <Button variant="gradient" color="green" onClick={() => {
                         handleOpen();
 
-
-
-
-
-
                       }}>
                         <span>Confirm</span>
                       </Button>
                     </DialogFooter>
                   </Dialog>
 
-
-
-
-
                 </td>
-
-
-
 
               </tr>
 
@@ -173,8 +157,5 @@ const ProductList = () => {
     </Card>
   )
 }
-
-
-
 
 export default ProductList

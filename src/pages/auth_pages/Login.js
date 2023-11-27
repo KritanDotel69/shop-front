@@ -14,20 +14,17 @@ import { useDispatch } from 'react-redux';
 import { setUserToLocal } from '../../features/userSlice';
 
 
-
 const Login = () => {
-
-  const [userLogin, { isLoading }] = useUserLoginMutation();
 
   const nav = useNavigate();
   const dispatch = useDispatch();
+  const [userLogin, { isLoading }] = useUserLoginMutation();
 
   const loginSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Required'),
     password: Yup.string().min(5).max(20).required('Required')
 
   });
-
 
   const formik = useFormik({
     initialValues: {
@@ -42,6 +39,7 @@ const Login = () => {
         toast.success('successfully login');
         nav(-1);
       } catch (err) {
+        console.log(err);
         toast.error(err.data);
       }
 

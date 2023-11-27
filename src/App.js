@@ -1,7 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router'
 import { ToastContainer, toast } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
 import Login from './pages/auth_pages/Login';
 import SignUp from './pages/SignUp';
@@ -11,6 +10,7 @@ import UserRoutes from './Component/UserRoutes';
 import ProductList from './pages/admin_pages/ProductList';
 import AdminRoutes from './Component/AdminRoutes';
 import AddProduct from './pages/admin_pages/AddProduct';
+import EditPage from './pages/admin_pages/EditPage';
 
 
 
@@ -24,6 +24,7 @@ const App = () => {
           <Route element={<AdminRoutes />}>
             <Route path='admin/ProductList' element={<ProductList />} />
             <Route path='admin/AddProduct' element={<AddProduct />} />
+            <Route path='admin/productEdit/:id' element={<EditPage />} />
 
           </Route>
 

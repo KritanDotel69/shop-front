@@ -4,45 +4,46 @@ import { useNavigate } from 'react-router';
 import { useFormik } from 'formik';
 import * as Yup from "yup";
 import { Select, Option } from "@material-tailwind/react";
-import { useAddProductMutation } from '../../features/productApi';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { baseUrl } from '../../features/constant';
+import { useUpdateProductMutation } from '../../features/productApi'
 
 
-const AddProduct = () => {
+const EditForm = ({ product }) => {
   const nav = useNavigate();
 
-  const [addProduct, { isLoading }] = useAddProductMutation();
-  const { user } = useSelector((store) => store.userInfo);
+  const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
+  const { user } = useSelector((store) => store.userInfo);
 
   const valSchema = Yup.object().shape({
     product_name: Yup.string().min(5, 'too short').max(50, 'max character 50').required(),
     product_detail: Yup.string().min(10, 'too short').max(200, 'max character 200').required(),
     product_price: Yup.string().min(1, 'too short').max(5, 'max character 5').required(),
-    product_image: Yup.mixed().test('fileType', 'Invalid file type', (value) =>
-      value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
-    ).test('fileSize', 'File too large', (value) =>
-      value && value.size <= 10 * 1024 * 1024
-    ),
+    // product_image: Yup.mixed().test('fileType', 'Invalid file type', (value) =>
+    //   value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
+    // ).test('fileSize', 'File too large', (value) =>
+    //   value && value.size <= 10 * 1024 * 1024
+    // ),
     brand: Yup.string().min(4, 'too short').max(200, 'max character 200').required(),
     category: Yup.string().min(5, 'too short').max(20, 'max character 20').required(),
     countInStock: Yup.string().min(1, 'too short').max(3, 'max character 3').required()
   });
 
+
   const formik = useFormik({
     initialValues: {
-      product_name: '',
-      product_detail: '',
-      product_price: '',
+      product_name: product.product_name,
+      product_detail: product.product_detail,
+      product_price: product.product_price.toString(),
       product_image: null,
-      brand: '',
-      category: '',
-      countInStock: '',
-      preview: '',
+      brand: product.brand,
+      category: product.category,
+      countInStock: product.countInStock,
+      preview: `${baseUrl}${product.product_image}`,
     },
     onSubmit: async (val) => {
-      // console.log(val)
       let formData = new FormData();
       formData.append('product_name', val.product_name);
       formData.append('product_detail', val.product_detail);
@@ -50,26 +51,41 @@ const AddProduct = () => {
       formData.append('brand', val.brand);
       formData.append('category', val.category);
       formData.append('countInStock', Number(val.countInStock));
-      formData.append('product_image', val.product_image);
+
 
       try {
-        const response = await addProduct({
-          body: formData,
-          token: user.token
-        }).unwrap();
-        // console.log(response)
-        toast.success('successfully add');
-        nav(-1);
+
+        if (val.product_image === null) {
+          const response = await updateProduct({
+            body: formData,
+            token: user.token,
+            id: product._id
+          }).unwrap();
+          // console.log(response)
+          toast.success('successfully updated');
+          nav(-1);
+        } else {
+          formData.append('product_image', val.product_image);
+          formData.append('imagePath', product.product_image);
+          const response = await updateProduct({
+            body: formData,
+            token: user.token,
+            id: product._id
+          }).unwrap();
+          // console.log(response)
+          toast.success('successfully updated');
+          nav(-1);
+        }
+
       } catch (err) {
         toast.error(err.data);
         console.log(err.data)
       }
 
+
     },
     validationSchema: valSchema
-
   });
-
 
   return (
     <div className='max-w-sm mt-[15px]  mx-auto pb-4 '>
@@ -107,18 +123,17 @@ const AddProduct = () => {
               </div>
 
 
-              <div className="w-72">
-                <Select label="Select Brand" name='brand' onChange={(e) => formik.setFieldValue('brand', e)}>
-                  <Option value='Nike'>Nike</Option>
-                  <Option value='Addidas'>Addidas</Option>
-                  <Option value='Yoho'>Yoho</Option>
-                  <Option value='Diamond'>Diamond</Option>
-
-                </Select>
+              <div>
+                <Input
+                  name='brand'
+                  id='brand'
+                  type='text'
+                  onChange={formik.handleChange}
+                  value={formik.values.brand}
+                  size="lg" label="Brand" />
                 {formik.errors.brand && formik.touched.brand ? <h1 className='mt-2 text-red-600'>{formik.errors.brand}</h1> : null}
+
               </div>
-
-
 
 
               <div>
@@ -143,17 +158,14 @@ const AddProduct = () => {
 
 
               <div className="w-72">
-                <Select label="SelectCategory" name='category' onChange={(e) => formik.setFieldValue('category', e)}>
-                  <Option value='sports'>Sports</Option>
+                <Select value={product.category} label="Select Category" name='category' onChange={(e) => formik.setFieldValue('category', e)}>
+                  <Option value='sports' >Sports</Option>
                   <Option value='clothes'>Clothes</Option>
                   <Option value='tech'>Tech</Option>
                   <Option value='games'>Games</Option>
                   <Option value='beauty products'>Beauty Products</Option>
                 </Select>
-                {formik.errors.category && formik.touched.category ? <h1 className='mt-2 text-red-600'>{formik.errors.category}</h1> : null}
               </div>
-
-
 
 
               <div>
@@ -163,11 +175,9 @@ const AddProduct = () => {
                   type='number'
                   onChange={formik.handleChange}
                   value={formik.values.countInStock}
-                  size="lg" label="CountInStock" />
+                  size="lg" label="Count In Stock" />
                 {formik.errors.countInStock && formik.touched.countInStock ? <h1 className='mt-2 text-red-600'>{formik.errors.countInStock}</h1> : null}
               </div>
-
-
 
               <div>
                 <Textarea
@@ -180,25 +190,26 @@ const AddProduct = () => {
                 />
                 {formik.errors.product_detail && formik.touched.product_detail ? <h1 className='mt-2 text-red-600'>{formik.errors.product_detail}</h1> : null}
 
-
-
               </div>
 
 
             </div>
 
 
-            {
+
+            {/* {
               isLoading ? <Button disabled className="mt-6 relative py-2 flex justify-center" fullWidth>
                 <div className='h-7 w-7 border-2  rounded-full border-t-gray-900 animate-spin'>
                 </div>
-              </Button> :
-                <Button type='submit' className="mt-6" fullWidth>
-                  Submit
-                </Button>
-            }
+              </Button> : */}
 
 
+            <Button type='submit' className="mt-6" fullWidth>
+              Submit
+            </Button>
+
+
+            {/* } */}
 
           </form>
         </Card>
@@ -207,4 +218,4 @@ const AddProduct = () => {
   )
 }
 
-export default AddProduct
+export default EditForm
