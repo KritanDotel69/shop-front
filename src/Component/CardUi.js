@@ -11,25 +11,22 @@ import { useNavigate } from "react-router";
 import { Image, Shimmer } from 'react-shimmer'
 import { baseUrl } from "../features/constant";
 
-
 const CardUi = ({ product }) => {
 
   const nav = useNavigate();
 
-
-
   return (
-    <Card className="mt-6 w-full cursor-pointer hover:shadow-2xl" onClick={() => nav(`/product/detail/${product._id}`)}>
+    <Card className="mt-6 w-full cursor-pointer hover:shadow-2xl" onClick={() => nav(`/product/${product._id}`)}>
       <CardHeader color="blue-gray" className="relative h-56 ">
         <img src={`${baseUrl}${product.product_image}`} alt="" className="h-full" />
-        {/* <div className="h-full">
+        <div className="h-full">
           <Image
             className='h-full'
             src={`${product.product_image}`}
             fallback={<Shimmer width={800}
               height={600} />}
           />
-        </div> */}
+        </div>
 
 
       </CardHeader>

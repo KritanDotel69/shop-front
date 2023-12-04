@@ -11,6 +11,10 @@ import ProductList from './pages/admin_pages/ProductList';
 import AdminRoutes from './Component/AdminRoutes';
 import AddProduct from './pages/admin_pages/AddProduct';
 import EditPage from './pages/admin_pages/EditPage';
+import ProductDetail from './pages/ProductDetail';
+import CartPage from './pages/user_pages/CartPage';
+import LogRoutes from './Component/LogRoutes';
+import Shipping from './pages/auth_pages/Shipping';
 
 
 
@@ -28,11 +32,23 @@ const App = () => {
 
           </Route>
 
+          <Route path='product/:id' element={<ProductDetail />} />
 
-          <Route element={<UserRoutes />}>
+          <Route element={<LogRoutes />}>
             <Route path='user/Login' element={<Login />} />
             <Route path='user/SignUp' element={<SignUp />} />
+
           </Route>
+
+
+          <Route element={<UserRoutes />}>
+
+            <Route path='user/cart' element={<CartPage />} />
+            <Route path='user/shipping' element={<Shipping />} />
+          </Route>
+
+
+
         </Route>
 
       </Routes >
